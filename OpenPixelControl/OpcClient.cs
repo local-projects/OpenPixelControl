@@ -16,9 +16,45 @@ namespace OpenPixelControl
             PixelOrder = pixelOrder;
         }
 
+        private TcpClient tcpClient;
+        private NetworkStream stream;
+
         public string Server { get; set; }
         public int Port { get; set; }
         public PixelOrder PixelOrder { get; set; }
+
+        public void Connect()
+        {
+            try
+            {
+                // Create a TcpClient.
+                // Note, for this client to work you need to have a TcpServer 
+                // connected to the same address as specified by the server, port
+                // combination.
+
+                tcpClient = new TcpClient(Server, Port) { NoDelay = true };
+
+                // Get a client stream for reading and writing.
+                stream = tcpClient.GetStream();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+        public void Disconnect()
+        {
+            // Close everything.
+            try
+            {
+                stream.Close();
+                tcpClient.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
 
         public void WriteFrame(List<Pixel> pixels, int channel = 0)
         {
@@ -131,17 +167,14 @@ namespace OpenPixelControl
 
         private void SendMessage(byte[] data)
         {
+            if (tcpClient == null || !tcpClient.Connected)
+            {
+                Console.WriteLine("You must connect before sending messages!");
+                return;
+            }
+
             try
             {
-                // Create a TcpClient.
-                // Note, for this client to work you need to have a TcpServer 
-                // connected to the same address as specified by the server, port
-                // combination.
-                var tcpClient = new TcpClient(Server, Port) {NoDelay = true};
-
-                // Get a client stream for reading and writing.
-                var stream = tcpClient.GetStream();
-
                 // Send the message to the connected TcpServer. 
                 stream.Write(data, 0, data.Length);
 
@@ -160,10 +193,6 @@ namespace OpenPixelControl
                 //var bytes = stream.Read(data, 0, data.Length);
                 //responseData = Encoding.ASCII.GetString(data, 0, bytes);
                 //Console.WriteLine("Received: {0}", responseData);
-
-                // Close everything.
-                stream.Close();
-                tcpClient.Close();
             }
             catch (ArgumentNullException e)
             {
