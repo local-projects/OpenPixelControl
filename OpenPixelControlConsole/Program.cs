@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Drawing;
-using System.Linq;
 using System.Threading;
+using OpenPixelControl;
 
-namespace OpenPixelControl
-{
-    internal static class Procgram
+    internal static class Program
     {
         public static int Main(string[] args)
         {
             try
             {
                 var opcClient = new OpcClient();
-
+                opcClient.PixelOrder = PixelOrder.RGB;
+                
                 //var frame = opcClient.SingleColorFrame(Color.DarkBlue);
                 //opcClient.WriteFrame(frame);
 
@@ -24,9 +23,11 @@ namespace OpenPixelControl
                 //opcClient.BlinkRandomThenBright();
                 //RgbyColorTest(opcClient);
                 //SingleLedChase(opcClient, 100);
+                //opcClient.WriteFrame(opcClient.SingleColorFrame(255, 255, 0), 0);
+
                 //opcClient.SingleLedChase(100);
                 //RainbowCycle(opcClient, 50);
-                opcClient.RainbowCycle(100);
+                opcClient.RainbowCycle(10);
 
 
                 //wait for socket to open
@@ -43,4 +44,3 @@ namespace OpenPixelControl
             return 0;
         }
     }
-}
